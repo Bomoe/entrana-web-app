@@ -16,6 +16,49 @@ brew install pnpm
 
 ## Getting Started
 
+1. Database Setup
+
+The application uses TimescaleDB (PostgreSQL with time-series extensions). You can set it up using either Docker CLI or Docker Desktop.
+
+#### Option A: Using Docker CLI
+
+```bash
+# 1) Create a persisted volume
+docker volume create timescale-data
+
+# 2) Launch the container
+docker run -d \
+  --name timescaledb \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgrespw \
+  -e POSTGRES_DB=entrana \
+  -p 5432:5432 \
+  -v timescale-data:/var/lib/postgresql/data \
+  timescale/timescaledb:latest-pg15
+```
+
+#### Option B: Using Docker Desktop
+
+1. Open Docker Desktop
+2. Go to "Volumes" and click "Create"
+   - Name: `timescale-data`
+3. Go to "Containers" and click "Add Container"
+   - Image: `timescale/timescaledb:latest-pg15`
+   - Container name: `timescaledb`
+   - Ports: `5432:5432`
+   - Environment variables:
+     ```
+     POSTGRES_USER=postgres
+     POSTGRES_PASSWORD=postgrespw
+     POSTGRES_DB=entrana
+     ```
+   - Volume: Click "+" and select `timescale-data`, mount it to `/var/lib/postgresql/data`
+4. Click "Run"
+
+The database will be accessible at `postgresql://postgres:postgrespw@localhost:5432/entrana
+
+2. Application Setup
+
 After installing pnpm, you can set up the project:
 
 ```bash
