@@ -190,18 +190,19 @@ func getAllMembers() ([]string, error) {
 		return nil, fmt.Errorf("Error unmarshaling wiseoldman JSON response: %v", err)
 	}
 
-	var finalPlayers []string
+	var finalDisplayNames []string
 
 	for _, player := range group.Memberships {
-		formattedName := strings.ReplaceAll(player.Player.Username, " ", "_")
-		finalPlayers = append(finalPlayers, formattedName)
+
+		finalDisplayNames = append(finalDisplayNames, player.Player.DisplayName)
 	}
 
-	return finalPlayers, nil
+	return finalDisplayNames, nil
 }
 
 func getRunescapeHiscores(rsn string) (Hiscore, error) {
-	url := `https://secure.runescape.com/m=hiscore_oldschool/index_lite.json?player=` + rsn
+	formattedName := strings.ReplaceAll(rsn, " ", "_")
+	url := `https://secure.runescape.com/m=hiscore_oldschool/index_lite.json?player=` + formattedName
 
 	res, err := http.Get(url)
 	if err != nil {
