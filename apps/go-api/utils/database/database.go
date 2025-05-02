@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
@@ -25,6 +26,7 @@ func New(dsn string) (*DB, error) {
 	config.MinConns = 5                       // Minimum number of connections in the pool
 	config.MaxConnLifetime = 1 * time.Hour    // Maximum connection lifetime
 	config.MaxConnIdleTime = 30 * time.Minute // Maximum idle time for a connection
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	// Create connection pool
 	pool, err := pgxpool.NewWithConfig(context.Background(), config)
