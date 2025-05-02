@@ -268,7 +268,7 @@ func uploadForDatabaseMethodOne(allHiscores []Hiscore, db *database.DB) error {
 		`, activity.rsn, activity.ID, activity.Name, activity.Rank, activity.Score)
 	}
 
-	results := db.Pool.SendBatch(ctx, batch)
+	results := tx.SendBatch(ctx, batch)
 	defer results.Close()
 
 	// Check for errors in each operation
@@ -338,7 +338,7 @@ func uploadForDatabaseMethodTwo(allHiscores []Hiscore, db *database.DB) error {
 		`, hiscore.rsn, skillsJSON, activitiesJSON)
 	}
 
-	results := db.Pool.SendBatch(ctx, batch)
+	results := tx.SendBatch(ctx, batch)
 	defer results.Close()
 
 	// Check for errors in each operation
