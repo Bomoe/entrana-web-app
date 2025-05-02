@@ -121,8 +121,6 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 		return
 	}
 
-	fmt.Println(members)
-
 	var allHiscores []Hiscore
 
 	var hiscoreFetchWG sync.WaitGroup
@@ -160,6 +158,8 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 		http.Error(w, "Failed to upload hiscores (method two): "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	log.Println("Finished updating hiscores...")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
