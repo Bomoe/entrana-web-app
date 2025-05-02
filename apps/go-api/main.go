@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db, err := database.New("postgresql://postgres:postgrespw@localhost:5432/entrana")
+	db, err := database.OpenDB()
 	if err != nil {
 		log.Fatalf("Could not initialize database connection pool: %v", err)
 	}
