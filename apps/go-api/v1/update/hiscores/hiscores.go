@@ -337,8 +337,8 @@ func uploadForDatabaseMethodTwo(allHiscores []Hiscore, db *database.DB) error {
 
 		batch.Queue(`
 			INSERT INTO hiscores (rsn, skills, activities)
-			VALUES ($1, $2, $3)
-		`, hiscore.rsn, skillsJSON, activitiesJSON)
+			VALUES ($1, $2::jsonb, $3::jsonb)
+		`, hiscore.rsn, string(skillsJSON), string(activitiesJSON))
 	}
 
 	results := tx.SendBatch(ctx, batch)
