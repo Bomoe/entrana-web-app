@@ -3,9 +3,11 @@ package database
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type DB struct {
@@ -45,7 +47,19 @@ func (db *DB) Close() {
 	}
 }
 
-func OpenDB(password string) (*DB, error) {
-	dsn := fmt.Sprintf("postgresql://postgres:%s@localhost:5432/entrana", password)
-	return New(dsn)
+// OpenDB initializes a database connection using the DATABASE_URL from .env
+func OpenDB() (*DB, error) {
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		return nil, fmt.Errorf("error loading .env file: %w", err)
+	}
+
+	// Get DATABASE_URL from environment
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL not found in environment")
+	}
+
+	return New(databaseURL)
 }

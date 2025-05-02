@@ -11,4 +11,7 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 )
 
-require github.com/jackc/pgx/v5 v5.7.4
+require (
+	github.com/jackc/pgx/v5 v5.7.4
+	github.com/joho/godotenv v1.5.1
+)
