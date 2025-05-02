@@ -269,13 +269,16 @@ func uploadForDatabaseMethodOne(allHiscores []Hiscore, db *database.DB) error {
 	}
 
 	results := tx.SendBatch(ctx, batch)
-	defer results.Close()
 
 	// Check for errors in each operation
 	for i := range batch.Len() {
 		if _, err := results.Exec(); err != nil {
 			return fmt.Errorf("batch operation %d failed: %w", i, err)
 		}
+	}
+
+	if err := results.Close(); err != nil {
+		return fmt.Errorf("closing batch results: %w", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -339,13 +342,16 @@ func uploadForDatabaseMethodTwo(allHiscores []Hiscore, db *database.DB) error {
 	}
 
 	results := tx.SendBatch(ctx, batch)
-	defer results.Close()
 
 	// Check for errors in each operation
 	for i := range batch.Len() {
 		if _, err := results.Exec(); err != nil {
 			return fmt.Errorf("batch operation %d failed: %w", i, err)
 		}
+	}
+
+	if err := results.Close(); err != nil {
+		return fmt.Errorf("closing batch results: %w", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
