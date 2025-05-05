@@ -1,6 +1,3 @@
-import { Button } from '@workspace/ui/components/button'
-import { hiscoresTable } from '@workspace/db/schema'
-import { db } from '@workspace/db/db'
 import { getSkillFromName } from '@/lib/utils/getSkillFromNumberOrName'
 import { getTopPlayerFromSkill } from './actions/skills/actions'
 
@@ -22,7 +19,6 @@ export default async function Page() {
       end: new Date(),
     })
   }
-  console.log(skillHiscores)
 
   const formattedPlayerLeaderboard = Object.entries(skillHiscores)
     .map(([playerName, stats]) => ({
