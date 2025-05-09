@@ -6,6 +6,7 @@ import {
   jsonb,
   text,
   boolean,
+  date,
 } from 'drizzle-orm/pg-core'
 
 export type SkillJson = Record<
@@ -24,6 +25,13 @@ export type ActivityJson = Record<
   { id: number; name: string; rank: number; score: number }
 >
 
+export enum EventType {
+  Skill = 'skill',
+  Activity = 'activity',
+  Bingo = 'bingo',
+  ItemRace = 'itemRace',
+}
+
 export const usersTable = pgTable('users', {
   id: text('id').primaryKey(),
   username: varchar({ length: 255 }).notNull().unique(),
@@ -41,25 +49,6 @@ export const hiscoresTable = pgTable('hiscores', {
   rsn: varchar({ length: 255 }).notNull(),
   skills: jsonb('skills').$type<SkillJson>(),
   activities: jsonb('activities').$type<ActivityJson>(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
-})
-
-export const skillHiscoresTable = pgTable('skill_hiscores', {
-  rsn: varchar({ length: 255 }).notNull(),
-  skill_id: integer('skill_id').notNull(),
-  name: varchar('name', { length: 255 }).notNull(),
-  rank: integer('rank').notNull(),
-  level: integer('level').notNull(),
-  xp: integer('xp').notNull(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
-})
-
-export const activityHiscoresTable = pgTable('activity_hiscores', {
-  rsn: varchar({ length: 255 }).notNull(),
-  activity_id: integer('activity_id').notNull(),
-  name: varchar('name', { length: 255 }).notNull(),
-  rank: integer('rank').notNull(),
-  score: integer('score').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -101,4 +90,60 @@ export const verification = pgTable('verification', {
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at'),
   updatedAt: timestamp('updated_at'),
+})
+
+export const eventsTable = pgTable('events', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  type: text('type').$type<EventType>().notNull(),
+  start: timestamp('start').notNull(),
+  end: timestamp('end').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const skillEventsTable = pgTable('skill_events', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  eventId: integer('event_id')
+    .notNull()
+    .references(() => eventsTable.id, { onDelete: 'cascade' }),
+  skillId: integer('skill_id')
+    .notNull()
+    .references(() => skillsTable.id, { onDelete: 'cascade' }),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const activityEventsTable = pgTable('activity_events', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  eventId: integer('event_id')
+    .notNull()
+    .references(() => eventsTable.id, { onDelete: 'cascade' }),
+  activityId: integer('activity_id')
+    .notNull()
+    .references(() => activitiesTable.id, { onDelete: 'cascade' }),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const skillsTable = pgTable('skills', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  skillId: integer('skill_id').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const activitiesTable = pgTable('activities', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  activityId: integer('activity_id').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull(),
+  deletedAt: timestamp('deleted_at'),
 })

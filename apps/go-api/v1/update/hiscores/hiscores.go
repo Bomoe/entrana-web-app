@@ -145,17 +145,10 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 	}
 	hiscoreFetchWG.Wait()
 
-	err = uploadForDatabaseMethodOne(allHiscores, db)
+	err = uploadData(allHiscores, db)
 	if err != nil {
 		log.Fatal(err)
-		http.Error(w, "Failed to upload hiscores (method one): "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = uploadForDatabaseMethodTwo(allHiscores, db)
-	if err != nil {
-		log.Fatal(err)
-		http.Error(w, "Failed to upload hiscores (method two): "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to upload hiscores: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -230,65 +223,7 @@ func getRunescapeHiscores(rsn string) (Hiscore, error) {
 	return Hiscore{RSN: rsn, Skills: playerStats.Skills, Activities: playerStats.Activities}, nil
 }
 
-func uploadForDatabaseMethodOne(allHiscores []Hiscore, db *database.DB) error {
-	var formattedSkills []DatabaseSkill
-	var formattedActivities []DatabaseActivity
-
-	for _, hiscore := range allHiscores {
-		for _, skill := range hiscore.Skills {
-			formattedSkills = append(formattedSkills, DatabaseSkill{rsn: hiscore.RSN, Skill: skill})
-		}
-		for _, activity := range hiscore.Activities {
-			formattedActivities = append(formattedActivities, DatabaseActivity{rsn: hiscore.RSN, Activity: activity})
-		}
-	}
-
-	ctx := context.Background()
-
-	tx, err := db.Pool.Begin(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to start transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
-
-	batch := &pgx.Batch{}
-
-	for _, skill := range formattedSkills {
-		batch.Queue(`
-			INSERT INTO skill_hiscores (rsn, skill_id, name, rank, level, xp)
-			VALUES ($1, $2, $3, $4, $5, $6)
-		`, skill.rsn, skill.ID, skill.Name, skill.Rank, skill.Level, skill.Xp)
-	}
-
-	// Example of a batch insert for activities
-	for _, activity := range formattedActivities {
-		batch.Queue(`
-			INSERT INTO activity_hiscores (rsn, activity_id, name, rank, score)
-			VALUES ($1, $2, $3, $4, $5)
-		`, activity.rsn, activity.ID, activity.Name, activity.Rank, activity.Score)
-	}
-
-	results := tx.SendBatch(ctx, batch)
-
-	// Check for errors in each operation
-	for i := range batch.Len() {
-		if _, err := results.Exec(); err != nil {
-			return fmt.Errorf("batch operation %d failed: %w", i, err)
-		}
-	}
-
-	if err := results.Close(); err != nil {
-		return fmt.Errorf("closing batch results: %w", err)
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
-}
-
-func uploadForDatabaseMethodTwo(allHiscores []Hiscore, db *database.DB) error {
+func uploadData(allHiscores []Hiscore, db *database.DB) error {
 	var uploadArr []DatabaseHiscore
 
 	for _, player := range allHiscores {

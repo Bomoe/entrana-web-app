@@ -1,14 +1,15 @@
 'use server'
 
 import { db } from '@workspace/db/db'
-import { hiscoresTable, SkillJson } from '@workspace/db/schema'
+import { hiscoresTable, SkillJson, skillsTable } from '@workspace/db/schema'
 import { Hiscore } from '@workspace/db/schemaTypes'
 import { gt, lt, and, asc, desc } from 'drizzle-orm'
+import { SkillHiscore } from './types'
 
-export async function getTopPlayerFromSkill(
+export async function getSkillHiscoreFromDateRange(
   targetSkill: number,
   dateRange: { start: Date; end: Date }
-) {
+): Promise<SkillHiscore> {
   const data = await db
     .select()
     .from(hiscoresTable)
@@ -23,7 +24,10 @@ export async function getTopPlayerFromSkill(
   return filterAndFormatSkills(targetSkill, data)
 }
 
-function filterAndFormatSkills(targetSkill: number, data: Hiscore[]) {
+function filterAndFormatSkills(
+  targetSkill: number,
+  data: Hiscore[]
+): SkillHiscore {
   const playerData: Record<
     string,
     {
@@ -57,4 +61,8 @@ function filterAndFormatSkills(targetSkill: number, data: Hiscore[]) {
   }
 
   return playerData
+}
+
+export async function getAllSkills() {
+  return await db.select().from(skillsTable)
 }
