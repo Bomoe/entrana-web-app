@@ -120,6 +120,12 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 		http.Error(w, "Failed to get members: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	error := updateAllMembers(members, db)
+	if error != nil {
+		log.Fatal(error)
+		http.Error(w, "Failed to upload all members: "+error.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var allHiscores []Hiscore
 
@@ -132,7 +138,6 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 			defer hiscoreFetchWG.Done()
 
 			workers <- struct{}{}
-
 			hiscores, err := getRunescapeHiscores(rsn)
 			if err != nil {
 				fmt.Printf("Error fetching hiscores for %s: %v\n", rsn, err)
@@ -145,7 +150,7 @@ func UpdateHiscores(w http.ResponseWriter, r *http.Request, db *database.DB) {
 	}
 	hiscoreFetchWG.Wait()
 
-	err = uploadData(allHiscores, db)
+	err = uploadHiscoresData(allHiscores, db)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, "Failed to upload hiscores: "+err.Error(), http.StatusInternalServerError)
@@ -193,6 +198,45 @@ func getAllMembers() ([]string, error) {
 	return finalDisplayNames, nil
 }
 
+func updateAllMembers(rsnArr []string, db *database.DB) error {
+	ctx := context.Background()
+
+	tx, err := db.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	batch := &pgx.Batch{}
+
+	for _, rsn := range rsnArr {
+		batch.Queue(`
+			INSERT INTO members (rsn)
+			VALUES ($1)
+			ON CONFLICT (rsn) DO NOTHING
+		`, rsn)
+	}
+
+	results := tx.SendBatch(ctx, batch)
+
+	// Check for errors in each operation
+	for i := range batch.Len() {
+		if _, err := results.Exec(); err != nil {
+			return fmt.Errorf("batch operation %d failed: %w", i, err)
+		}
+	}
+
+	if err := results.Close(); err != nil {
+		return fmt.Errorf("closing batch results: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
+}
+
 func getRunescapeHiscores(rsn string) (Hiscore, error) {
 	formattedName := strings.ReplaceAll(rsn, " ", "_")
 	url := `https://secure.runescape.com/m=hiscore_oldschool/index_lite.json?player=` + formattedName
@@ -223,7 +267,7 @@ func getRunescapeHiscores(rsn string) (Hiscore, error) {
 	return Hiscore{RSN: rsn, Skills: playerStats.Skills, Activities: playerStats.Activities}, nil
 }
 
-func uploadData(allHiscores []Hiscore, db *database.DB) error {
+func uploadHiscoresData(allHiscores []Hiscore, db *database.DB) error {
 	var uploadArr []DatabaseHiscore
 
 	for _, player := range allHiscores {

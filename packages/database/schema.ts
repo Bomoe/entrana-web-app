@@ -100,7 +100,7 @@ export const eventsTable = pgTable('events', {
   start: timestamp('start').notNull(),
   end: timestamp('end').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
 
@@ -113,7 +113,7 @@ export const skillEventsTable = pgTable('skill_events', {
     .notNull()
     .references(() => skillsTable.id, { onDelete: 'cascade' }),
   created_at: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
 
@@ -126,7 +126,7 @@ export const activityEventsTable = pgTable('activity_events', {
     .notNull()
     .references(() => activitiesTable.id, { onDelete: 'cascade' }),
   created_at: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
 
@@ -135,7 +135,7 @@ export const skillsTable = pgTable('skills', {
   skillId: integer('skill_id').notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
 
@@ -144,6 +144,14 @@ export const activitiesTable = pgTable('activities', {
   activityId: integer('activity_id').notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const membersTable = pgTable('members', {
+  id: integer().generatedAlwaysAsIdentity().unique(),
+  rsn: varchar({ length: 255 }).notNull().unique(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })

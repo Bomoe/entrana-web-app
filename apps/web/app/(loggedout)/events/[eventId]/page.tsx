@@ -17,11 +17,15 @@ export default async function Page({
   params: Promise<{ eventId: string }>
 }) {
   const { eventId } = await params
+  console.log('Event ID:', eventId)
   const events = await getEventDetails({ eventId: parseInt(eventId) })
+  console.log('Events retrieved:', events)
   let foundEvent: EventDetails | null = null
   if (events.length > 0 && events[0]) {
     foundEvent = events[0]
+    console.log('Found event:', foundEvent)
   } else {
+    console.log('No event found, redirecting')
     redirect('')
   }
 
@@ -31,30 +35,43 @@ export default async function Page({
     | null = null
 
   if (foundEvent.skill_events) {
+    console.log(
+      'Processing skill event, skill ID:',
+      foundEvent.skill_events.skillId
+    )
     const hiscores = await getSkillHiscoreFromDateRange(
       foundEvent.skill_events.skillId,
       { start: foundEvent.events.start, end: foundEvent.events.end }
     )
+    console.log('Retrieved skill hiscores:', hiscores)
     formattedPlayerLeaderboard = Object.entries(hiscores)
       .map(([playerName, stats]) => ({
         playerName,
         ...stats,
       }))
       .sort((a, b) => b.endingXp - a.endingXp)
+    console.log('Formatted skill leaderboard:', formattedPlayerLeaderboard)
   } else if (foundEvent.activity_events) {
+    console.log(
+      'Processing activity event, activity ID:',
+      foundEvent.activity_events.activityId
+    )
     const hiscores = await getActivityHiscoreFromDateRange(
       foundEvent.activity_events.activityId,
       { start: foundEvent.events.start, end: foundEvent.events.end }
     )
+    console.log('Retrieved activity hiscores:', hiscores)
     formattedPlayerLeaderboard = Object.entries(hiscores)
       .map(([playerName, stats]) => ({
         playerName,
         ...stats,
       }))
       .sort((a, b) => b.endingScore - a.endingScore)
+    console.log('Formatted activity leaderboard:', formattedPlayerLeaderboard)
   }
 
   if (!formattedPlayerLeaderboard) {
+    console.log('No leaderboard data, redirecting')
     redirect('')
   }
 
