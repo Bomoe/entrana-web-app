@@ -111,7 +111,7 @@ export const skillEventsTable = pgTable('skill_events', {
     .references(() => eventsTable.id, { onDelete: 'cascade' }),
   skillId: integer('skill_id')
     .notNull()
-    .references(() => skillsTable.id, { onDelete: 'cascade' }),
+    .references(() => skillsTable.skillId, { onDelete: 'cascade' }),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
@@ -124,15 +124,14 @@ export const activityEventsTable = pgTable('activity_events', {
     .references(() => eventsTable.id, { onDelete: 'cascade' }),
   activityId: integer('activity_id')
     .notNull()
-    .references(() => activitiesTable.id, { onDelete: 'cascade' }),
+    .references(() => activitiesTable.activityId, { onDelete: 'cascade' }),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
 
 export const skillsTable = pgTable('skills', {
-  id: integer().generatedAlwaysAsIdentity().unique(),
-  skillId: integer('skill_id').notNull(),
+  skillId: integer('skill_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -140,8 +139,7 @@ export const skillsTable = pgTable('skills', {
 })
 
 export const activitiesTable = pgTable('activities', {
-  id: integer().generatedAlwaysAsIdentity().unique(),
-  activityId: integer('activity_id').notNull(),
+  activityId: integer('activity_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
