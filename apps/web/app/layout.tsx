@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from 'next/font/google'
+import type { Metadata } from 'next'
 
 import '@workspace/ui/globals.css'
 import { Providers } from '@/components/providers'
@@ -13,6 +14,13 @@ const fontMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
 })
+
+export const metadata: Metadata = {
+  title: 'Entrana Tracker',
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
 
 export default function RootLayout({
   children,
