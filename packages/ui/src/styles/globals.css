@@ -1,81 +1,87 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --background: #f4e2c2; /* Soft beige background */
+  --foreground: #4b2e1e; /* Dark brown foreground */
+  --card: #e3c5a7; /* Warm light brown */
+  --card-foreground: #4b2e1e; /* Dark brown */
+  --popover: #e8d2b7; /* Light sand */
+  --popover-foreground: #4b2e1e; /* Dark brown */
+  --primary: #d77b35; /* Soft orange */
+  --primary-foreground: #fff5e1; /* Very light peach */
+  --secondary: #e8b26d; /* Muted sunset orange */
+  --secondary-foreground: #4b2e1e; /* Dark brown */
+  --muted: #d7a579; /* Muted tan */
+  --muted-foreground: #4b2e1e; /* Dark brown */
+  --accent: #7d936d; /* Sage green */
+  --accent-foreground: #4b2e1e; /* Dark brown */
+  --destructive: #b85729; /* Deep burnt orange */
+  --destructive-foreground: #fff5e1; /* Light peach */
+  --border: #cfa87f; /* Soft peach border */
+  --input: #e3c5a7; /* Warm light brown */
+  --ring: #d77b35; /* Soft orange */
+  --chart-1: #7d936d; /* Sage green */
+  --chart-2: #d7a579; /* Muted tan */
+  --chart-3: #e8b26d; /* Muted sunset orange */
+  --chart-4: #b85729; /* Deep burnt orange */
+  --chart-5: #4b2e1e; /* Dark brown */
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #f4e2c2; /* Soft beige */
+  --sidebar-foreground: #4b2e1e; /* Dark brown */
+  --sidebar-primary: #d77b35; /* Soft orange */
+  --sidebar-primary-foreground: #fff5e1; /* Very light peach */
+  --sidebar-accent: #7d936d; /* Sage green */
+  --sidebar-accent-foreground: #4b2e1e; /* Dark brown */
+  --sidebar-border: #cfa87f; /* Soft peach */
+  --sidebar-ring: #d77b35; /* Soft orange */
+  --scrollbar-track: #e3c5a7; /* Light scrollbar track */
+  --scrollbar-thumb: #a97f55; /* Darker brown scrollbar thumb for better contrast */
+  --scrollbar-thumb-hover: #d77b35; /* Soft orange on hover */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #2b1f17; /* Darker, earthy brown */
+  --foreground: #fff5e1; /* Light peach */
+  --card: #3e281a; /* Rich dark brown */
+  --card-foreground: #fff5e1; /* Light peach */
+  --popover: #413326; /* Dark sand */
+  --popover-foreground: #fff5e1; /* Light peach */
+  --primary: #d77b35; /* Soft orange */
+  --primary-foreground: #fff5e1; /* Light peach */
+  --secondary: #7d936d; /* Sage green */
+  --secondary-foreground: #fff5e1; /* Light peach */
+  --muted: #6f4b31; /* Muted brown */
+  --muted-foreground: #d7a579; /* Muted tan */
+  --accent: #7d936d; /* Sage green */
+  --accent-foreground: #fff5e1; /* Light peach */
+  --destructive: #b85729; /* Deep burnt orange */
+  --destructive-foreground: #fff5e1; /* Light peach */
+  --border: #6f4b31; /* Muted brown */
+  --input: #6f4b31; /* Muted brown */
+  --ring: #d77b35; /* Soft orange */
+  --chart-1: #7d936d; /* Sage green */
+  --chart-2: #d7a579; /* Muted tan */
+  --chart-3: #e8b26d; /* Muted sunset orange */
+  --chart-4: #b85729; /* Deep burnt orange */
+  --chart-5: #4b2e1e; /* Dark brown */
+  --sidebar: #2b1f17; /* Darker earthy brown */
+  --sidebar-foreground: #fff5e1; /* Light peach */
+  --sidebar-primary: #d77b35; /* Soft orange */
+  --sidebar-primary-foreground: #fff5e1; /* Light peach */
+  --sidebar-accent: #7d936d; /* Sage green */
+  --sidebar-accent-foreground: #fff5e1; /* Light peach */
+  --sidebar-border: #6f4b31; /* Muted brown */
+  --sidebar-ring: #d77b35; /* Soft orange */
+  --scrollbar-track: #3e281a; /* Dark scrollbar track */
+  --scrollbar-thumb: #d77b35; /* Soft orange scrollbar thumb for better contrast */
+  --scrollbar-thumb-hover: #e8b26d; /* Lighter orange on hover */
 }
 
 @theme inline {
@@ -117,11 +123,45 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme {
+  --breakpoint-3xl: 1792px;
+  --breakpoint-4xl: 2048px;
+  --breakpoint-5xl: 2304px;
+  --breakpoint-6xl: 2560px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom Scrollbar Styles for Chrome/Webkit */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
 }

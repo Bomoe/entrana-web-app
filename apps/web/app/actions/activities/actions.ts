@@ -2,60 +2,111 @@
 
 import { db } from '@workspace/db/db'
 import {
+  membersTable,
   activitiesTable,
-  hiscoresTable,
-  SkillJson,
-  skillsTable,
+  ActivityJson,
 } from '@workspace/db/schema'
 import { Hiscore } from '@workspace/db/schemaTypes'
-import { gt, lt, and, asc, desc } from 'drizzle-orm'
-import { ActivityHiscore } from './types'
-
-export async function getAllActivities() {
-  return await db.select().from(activitiesTable)
-}
+import { gt, lt, and, asc, desc, sql, eq } from 'drizzle-orm'
+import { EventHiscore } from '@/lib/globalTypes/types'
 
 export async function getActivityHiscoreFromDateRange(
   targetActivity: number,
   dateRange: { start: Date; end: Date }
-): Promise<ActivityHiscore> {
-  const data = await db
+): Promise<EventHiscore> {
+  // Get all active members
+  const members = await db
     .select()
-    .from(hiscoresTable)
-    .where(
-      and(
-        gt(hiscoresTable.created_at, dateRange.start),
-        lt(hiscoresTable.created_at, dateRange.end)
-      )
-    )
-    .orderBy(asc(hiscoresTable.created_at))
+    .from(membersTable)
+    .where(sql`${membersTable.deletedAt} IS NULL`)
 
-  return filterAndFormatActivities(targetActivity, data)
-}
+  const rsnList = members.map((member) => member.rsn)
 
-function filterAndFormatActivities(
-  targetActivity: number,
-  data: Hiscore[]
-): ActivityHiscore {
-  const playerData: ActivityHiscore = {}
+  if (rsnList.length === 0) {
+    return {}
+  }
 
-  for (const player of data) {
-    if (player && player.activities) {
-      const currentPlayer = playerData[player.rsn]
-      const currentSkill = player.activities[targetActivity]
-      if (currentPlayer && currentSkill) {
-        playerData[player.rsn] = {
-          startingScore: currentPlayer.startingScore,
-          endingScore: currentSkill.score - currentPlayer.startingScore,
-        }
-      } else {
-        playerData[player.rsn] = {
-          startingScore: currentSkill?.score || 0,
-          endingScore: 0,
-        }
+  const startDateStr = dateRange.start.toISOString()
+  const endDateStr = dateRange.end.toISOString()
+
+  const rsnPlaceholders = rsnList.map((rsn) => `'${rsn}'`).join(', ')
+  const inClause = sql`rsn IN (${sql.raw(rsnPlaceholders)})`
+
+  const earliestRecords = await db.execute<Hiscore>(sql`
+    SELECT DISTINCT ON (rsn)
+      id, rsn, activities, created_at
+    FROM hiscores
+    WHERE
+      created_at > ${sql.raw(`'${startDateStr}'`)} AND
+      created_at < ${sql.raw(`'${endDateStr}'`)} AND
+      ${inClause}
+    ORDER BY rsn, created_at ASC
+  `)
+
+  const latestRecords = await db.execute<Hiscore>(sql`
+    SELECT DISTINCT ON (rsn)
+      id, rsn, activities, created_at
+    FROM hiscores
+    WHERE
+      created_at > ${sql.raw(`'${startDateStr}'`)} AND
+      created_at < ${sql.raw(`'${endDateStr}'`)} AND
+      ${inClause}
+    ORDER BY rsn, created_at DESC
+  `)
+
+  const earliestByRsn = new Map<string, { activities: ActivityJson }>()
+  const latestByRsn = new Map<
+    string,
+    { activities: ActivityJson; lastUpdatedAtStr: string }
+  >()
+
+  for (const record of earliestRecords) {
+    if (
+      record.activities &&
+      record.activities[targetActivity]?.score !== undefined
+    ) {
+      earliestByRsn.set(record.rsn, {
+        activities: record.activities,
+      })
+    }
+  }
+
+  for (const record of latestRecords) {
+    if (
+      record.activities &&
+      record.activities[targetActivity]?.score !== undefined
+    ) {
+      latestByRsn.set(record.rsn, {
+        activities: record.activities,
+        lastUpdatedAtStr: new Date(record.created_at).toISOString(),
+      })
+    }
+  }
+
+  let data: EventHiscore = {}
+
+  for (const rsn of earliestByRsn.keys()) {
+    const earliest = earliestByRsn.get(rsn)
+    const latest = latestByRsn.get(rsn)
+
+    if (
+      earliest &&
+      latest &&
+      typeof earliest.activities[targetActivity]?.score === 'number' &&
+      typeof latest.activities[targetActivity]?.score === 'number'
+    ) {
+      data[rsn] = {
+        endingNum:
+          latest.activities[targetActivity].score -
+          earliest.activities[targetActivity].score,
+        lastUpdatedAtStr: latest.lastUpdatedAtStr,
       }
     }
   }
 
-  return playerData
+  return data
+}
+
+export async function getAllActivities() {
+  return await db.select().from(activitiesTable)
 }

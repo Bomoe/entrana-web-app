@@ -18,7 +18,7 @@ export default async function Page({
     redirect('/login')
   }
   const { tab } = await searchParams
-  const defaultTab = tab ?? 'events'
+  const defaultTab = tab || 'events'
   let defaultData: SkillsAndActivites | null = null
   if (defaultTab === 'events') {
     const skills = await getAllSkills()
@@ -28,7 +28,7 @@ export default async function Page({
 
   return (
     <div>
-      <ToolTabs defaultTab={tab} defaultData={defaultData} />
+      <ToolTabs defaultTab={defaultTab} defaultData={defaultData} />
     </div>
   )
 }

@@ -1,5 +1,1 @@
-export type SkillHiscore = Record<string, SkillHiscoreItem>
-
-export interface SkillHiscoreItem {
-  endingXp: number
-}
+// Saving for later
