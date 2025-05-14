@@ -1,11 +1,16 @@
+'use server'
+
 import { db } from '@workspace/db/db'
 import {
+  activitiesTable,
   activityEventsTable,
   eventsTable,
+  EventType,
   skillEventsTable,
+  skillsTable,
 } from '@workspace/db/schema'
-import { eq } from 'drizzle-orm'
-import { EventDetails } from './types'
+import { desc, eq, ilike, or } from 'drizzle-orm'
+import { EventDetails, FormattedEventDetails } from './types'
 
 export async function getEventDetails({
   eventId,
@@ -23,4 +28,56 @@ export async function getEventDetails({
     )
 
   return foundEvent
+}
+
+export async function getMultipleEvents({
+  take,
+  skip,
+  search = '',
+}: {
+  take: number
+  skip: number
+  search?: string
+}): Promise<FormattedEventDetails[]> {
+  const events = await db
+    .selectDistinct()
+    .from(eventsTable)
+    .leftJoin(skillEventsTable, eq(eventsTable.id, skillEventsTable.eventId))
+    .leftJoin(skillsTable, eq(skillEventsTable.skillId, skillsTable.skillId))
+    .leftJoin(
+      activityEventsTable,
+      eq(eventsTable.id, activityEventsTable.eventId)
+    )
+    .leftJoin(
+      activitiesTable,
+      eq(activityEventsTable.activityId, activitiesTable.activityId)
+    )
+    .orderBy(desc(activityEventsTable.created_at))
+    .limit(take)
+    .offset(skip)
+    .where(
+      search !== ''
+        ? or(
+            ilike(eventsTable.name, `%${search}%`),
+            ilike(eventsTable.description, `%${search}%`),
+            ilike(skillsTable.name, `%${search}%`),
+            ilike(activitiesTable.name, `%${search}%`)
+          )
+        : undefined
+    )
+
+  const formattedEvents: FormattedEventDetails[] = []
+
+  for (const event of events) {
+    const isSkill = event.events.type === EventType.Skill
+    const isActivity = event.events.type === EventType.Activity
+
+    formattedEvents.push({
+      ...event.events,
+      skillName: isSkill ? event.skills?.name || '' : null,
+      activityName: isActivity ? event.activities?.name || '' : null,
+    })
+  }
+
+  return formattedEvents
 }

@@ -12,6 +12,8 @@ import {
 } from 'date-fns'
 import { useState, useEffect } from 'react'
 import { Separator } from '@workspace/ui/components/separator'
+import { useCountdown } from '@/lib/hooks/useCountdown'
+import { formatDate } from '@/lib/utils/formatDate'
 
 export function LeaderboardSideBar({
   eventDetails,
@@ -19,7 +21,6 @@ export function LeaderboardSideBar({
   isSkillBased,
 }: LeaderboardSideBarProps) {
   const [isMounted, setIsMounted] = useState(false)
-  const [remainingTime, setRemainingTime] = useState(0)
   const [remainingTimeString, setRemainingTimeString] = useState('Event ended')
 
   useEffect(() => {
@@ -27,16 +28,13 @@ export function LeaderboardSideBar({
   }, [])
 
   useEffect(() => {
-    const timeLeft = getTimeLeft(eventDetails.events.end)
-    const timer = setTimeout(() => setRemainingTime(timeLeft ?? 0), 1000)
-    return () => clearTimeout(timer)
-  }, [remainingTime])
+    setIsMounted(true)
+  }, [])
 
-  function formatDate(date: Date | string | null | undefined) {
-    if (!date) return ''
-    const dateObj = date instanceof Date ? date : new Date(date)
-    return format(dateObj, 'MMM d, yyyy h:mm a')
-  }
+  useCountdown({
+    endDate: eventDetails.events.end,
+    onTimeRemainingUpdate: setRemainingTimeString,
+  })
 
   const startFormatted = eventDetails.events.start
     ? formatDate(eventDetails.events.start)
@@ -45,23 +43,6 @@ export function LeaderboardSideBar({
     ? formatDate(eventDetails.events.end)
     : ''
 
-  function getTimeLeft(endDate: Date) {
-    const newEndDate = new Date(endDate)
-    const now = new Date()
-
-    if (newEndDate && newEndDate > now) {
-      const days = differenceInDays(newEndDate, now)
-      const hours = differenceInHours(newEndDate, now) % 24
-      const minutes = differenceInMinutes(newEndDate, now) % 60
-      const seconds = differenceInSeconds(newEndDate, now) % 60
-      setRemainingTimeString(
-        `${days} days ${hours} hours ${minutes} minutes ${seconds} seconds`
-      )
-      return newEndDate.getTime() - now.getTime()
-    } else {
-      setRemainingTimeString('Event ended')
-    }
-  }
   return (
     <div className="bg-background/80 h-full w-full flex-shrink-0 p-2 shadow-sm 2xl:w-96 2xl:p-4">
       {!isMounted ? (
