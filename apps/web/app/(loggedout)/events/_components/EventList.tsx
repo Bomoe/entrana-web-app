@@ -17,7 +17,7 @@ export function EventList({ allEvents, itemsPerPage }: EventListProps) {
       take: itemsPerPage,
       search: newSearchTerm,
     })
-  }, 350)
+  }, 250)
 
   async function getNewEvents({
     page,
