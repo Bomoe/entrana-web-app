@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     }
     const body: { apiKey: string; cacheName: string } | null | undefined =
       await request.json()
-    console.log(body)
     if (!body) {
       throw new Error('Body missing from request to break cache')
     }
