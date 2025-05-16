@@ -9,6 +9,7 @@ import {
 import { Hiscore } from '@workspace/db/schemaTypes'
 import { gt, lt, and, asc, desc, sql, eq } from 'drizzle-orm'
 import { EventHiscore } from '@/lib/globalTypes/types'
+import { unstable_cache } from 'next/cache'
 
 export async function getActivityHiscoreFromDateRange(
   targetActivity: number,
@@ -26,8 +27,8 @@ export async function getActivityHiscoreFromDateRange(
     return {}
   }
 
-  const startDateStr = dateRange.start.toISOString()
-  const endDateStr = dateRange.end.toISOString()
+  const startDateStr = new Date(dateRange.start).toISOString()
+  const endDateStr = new Date(dateRange.end).toISOString()
 
   const rsnPlaceholders = rsnList.map((rsn) => `'${rsn}'`).join(', ')
   const inClause = sql`rsn IN (${sql.raw(rsnPlaceholders)})`
@@ -106,6 +107,17 @@ export async function getActivityHiscoreFromDateRange(
 
   return data
 }
+
+export const getCachedActivityHiscore = unstable_cache(
+  async (
+    targetActivity: number,
+    dateRange: { start: Date; end: Date }
+  ): Promise<EventHiscore> => {
+    return await getActivityHiscoreFromDateRange(targetActivity, dateRange)
+  },
+  ['hiscores-data'],
+  { tags: ['hiscores-data'] }
+)
 
 export async function getAllActivities() {
   return await db.select().from(activitiesTable)

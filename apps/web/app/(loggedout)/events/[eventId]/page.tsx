@@ -1,7 +1,7 @@
-import { getActivityHiscoreFromDateRange } from '@/app/actions/activities/actions'
-import { getEventDetails } from '@/app/actions/events/actions'
+import { getCachedActivityHiscore } from '@/app/actions/activities/actions'
+import { getCachedEventDetails } from '@/app/actions/events/actions'
 import { EventDetails } from '@/app/actions/events/types'
-import { getSkillHiscoreFromDateRange } from '@/app/actions/skills/actions'
+import { getCachedSkillHiscore } from '@/app/actions/skills/actions'
 import { redirect } from 'next/navigation'
 import { TableData } from './_components/types'
 import { Leaderboard } from './_components/Leaderboard'
@@ -13,24 +13,27 @@ export default async function Page({
   params: Promise<{ eventId: string }>
 }) {
   const { eventId } = await params
-  const events = await getEventDetails({ eventId: parseInt(eventId) })
+  const events = await getCachedEventDetails({ eventId: parseInt(eventId) })
   let foundEvent: EventDetails | null = null
   if (events.length > 0 && events[0]) {
     foundEvent = events[0]
   } else {
     console.log('No event found, redirecting')
-    redirect('')
+    redirect('/events')
   }
 
   let hiscores: EventHiscore = {}
-  if (foundEvent.skill_events) {
-    hiscores = await getSkillHiscoreFromDateRange(
-      foundEvent.skill_events.skillId,
-      { start: foundEvent.events.start, end: foundEvent.events.end }
-    )
-  } else if (foundEvent.activity_events) {
-    hiscores = await getActivityHiscoreFromDateRange(
-      foundEvent.activity_events.activityId,
+  if (foundEvent.skill_events && foundEvent.skills?.hiscoreSkillId) {
+    hiscores = await getCachedSkillHiscore(foundEvent.skills.hiscoreSkillId, {
+      start: foundEvent.events.start,
+      end: foundEvent.events.end,
+    })
+  } else if (
+    foundEvent.activity_events &&
+    foundEvent.activities?.hiscoreActivityId
+  ) {
+    hiscores = await getCachedActivityHiscore(
+      foundEvent.activities.hiscoreActivityId,
       { start: foundEvent.events.start, end: foundEvent.events.end }
     )
   }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	break_cache "go-api/utils/cache"
 	"go-api/utils/database"
 	"io"
 	"log"
@@ -335,6 +336,10 @@ func uploadHiscoresData(allHiscores []Hiscore, db *database.DB) error {
 
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	if err := break_cache.BreakCache("hiscores-data"); err != nil {
+		return fmt.Errorf("failed to break cache: %w", err)
 	}
 
 	return nil

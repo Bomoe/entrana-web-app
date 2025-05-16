@@ -131,7 +131,8 @@ export const activityEventsTable = pgTable('activity_events', {
 })
 
 export const skillsTable = pgTable('skills', {
-  skillId: integer('skill_id').notNull().unique(),
+  skillId: integer('skill_id').notNull().generatedAlwaysAsIdentity().unique(),
+  hiscoreSkillId: integer('hiscore_skill_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -139,7 +140,11 @@ export const skillsTable = pgTable('skills', {
 })
 
 export const activitiesTable = pgTable('activities', {
-  activityId: integer('activity_id').notNull().unique(),
+  activityId: integer('activity_id')
+    .notNull()
+    .generatedAlwaysAsIdentity()
+    .unique(),
+  hiscoreActivityId: integer('hiscore_activity_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

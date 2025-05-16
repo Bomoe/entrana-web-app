@@ -11,6 +11,7 @@ import {
 } from '@workspace/db/schema'
 import { desc, eq, ilike, or } from 'drizzle-orm'
 import { EventDetails, FormattedEventDetails } from './types'
+import { unstable_cache } from 'next/cache'
 
 export async function getEventDetails({
   eventId,
@@ -22,12 +23,32 @@ export async function getEventDetails({
     .from(eventsTable)
     .where(eq(eventsTable.id, eventId))
     .leftJoin(skillEventsTable, eq(eventsTable.id, skillEventsTable.eventId))
+    .leftJoin(skillsTable, eq(skillEventsTable.skillId, skillsTable.skillId))
     .leftJoin(
       activityEventsTable,
       eq(eventsTable.id, activityEventsTable.eventId)
     )
+    .leftJoin(
+      activitiesTable,
+      eq(activityEventsTable.activityId, activitiesTable.activityId)
+    )
 
   return foundEvent
+}
+
+export async function getCachedEventDetails({
+  eventId,
+}: {
+  eventId: number
+}): Promise<EventDetails[]> {
+  const cachedDetails = unstable_cache(
+    async (eventId: number): Promise<EventDetails[]> => {
+      return await getEventDetails({ eventId })
+    },
+    [`event-${eventId}`]
+  )
+
+  return await cachedDetails(eventId)
 }
 
 export async function getMultipleEvents({

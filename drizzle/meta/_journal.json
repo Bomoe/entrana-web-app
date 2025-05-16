@@ -15,6 +15,20 @@
       "when": 1746754762989,
       "tag": "0001_same_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1747356197192,
+      "tag": "0002_tired_betty_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1747357265967,
+      "tag": "0003_equal_thunderbolt",
+      "breakpoints": true
     }
   ]
 }

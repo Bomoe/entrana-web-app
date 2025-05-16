@@ -5,6 +5,7 @@ import { membersTable, SkillJson, skillsTable } from '@workspace/db/schema'
 import { Hiscore } from '@workspace/db/schemaTypes'
 import { gt, lt, and, asc, desc, sql, eq } from 'drizzle-orm'
 import { EventHiscore } from '@/lib/globalTypes/types'
+import { unstable_cache } from 'next/cache'
 
 export async function getSkillHiscoreFromDateRange(
   targetSkill: number,
@@ -22,8 +23,8 @@ export async function getSkillHiscoreFromDateRange(
     return {}
   }
 
-  const startDateStr = dateRange.start.toISOString()
-  const endDateStr = dateRange.end.toISOString()
+  const startDateStr = new Date(dateRange.start).toISOString()
+  const endDateStr = new Date(dateRange.end).toISOString()
 
   const rsnPlaceholders = rsnList.map((rsn) => `'${rsn}'`).join(', ')
   const inClause = sql`rsn IN (${sql.raw(rsnPlaceholders)})`
@@ -95,6 +96,17 @@ export async function getSkillHiscoreFromDateRange(
 
   return data
 }
+
+export const getCachedSkillHiscore = unstable_cache(
+  async (
+    targetSkill: number,
+    dateRange: { start: Date; end: Date }
+  ): Promise<EventHiscore> => {
+    return await getSkillHiscoreFromDateRange(targetSkill, dateRange)
+  },
+  ['hiscores-data'],
+  { tags: ['hiscores-data'] }
+)
 
 export async function getAllSkills() {
   return await db.select().from(skillsTable)
