@@ -10,23 +10,28 @@ import {
 import { ManageEvents } from './ManageEvents/ManageEvents'
 import { ManageMembers } from './ManageMembers/ManageMembers'
 import { getAllActivities } from '@/app/actions/activities/actions'
-import { getAllSkills } from '@/app/actions/skills/actions'
+import { getAllSkills, getMembersData } from '@/app/actions/skills/actions'
 import { SkillsAndActivites } from './ManageEvents/types'
+import { Member } from '@workspace/db/schemaTypes'
 
 export function ToolTabs({
   defaultTab,
   defaultData,
 }: {
   defaultTab: string
-  defaultData: SkillsAndActivites | null
+  defaultData: SkillsAndActivites | Member[] | null
 }) {
   const [currentTab, setCurrentTab] = useState(defaultTab)
   const [eventsData, setEventsData] = useState<SkillsAndActivites>(
     defaultTab === 'events' &&
-      defaultData?.skills &&
+      defaultData &&
+      'skills' in defaultData &&
       defaultData?.skills?.length > 0
       ? defaultData
       : { skills: [], activities: [] }
+  )
+  const [membersData, setMembersData] = useState<Member[]>(
+    defaultTab === 'members' ? (defaultData as Member[]) : []
   )
 
   async function getEventsData() {
@@ -35,11 +40,21 @@ export function ToolTabs({
     setEventsData({ skills, activities })
   }
 
+  async function fetchMembersData() {
+    const members = await getMembersData()
+    setMembersData(members)
+  }
+
   async function switchTabs(newTab: string) {
     const validTabs = ['events', 'members', 'announcements']
     if (validTabs.includes(newTab)) {
-      if (newTab === 'events') {
-        await getEventsData()
+      switch (newTab) {
+        case 'events':
+          await getEventsData()
+          break
+        case 'members':
+          await fetchMembersData()
+          break
       }
       setCurrentTab(newTab)
     }
@@ -56,7 +71,7 @@ export function ToolTabs({
           <ManageEvents data={eventsData} />
         </TabsContent>
         <TabsContent value="members">
-          <ManageMembers />
+          <ManageMembers data={membersData} />
         </TabsContent>
       </Tabs>
     </div>

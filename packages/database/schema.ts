@@ -7,7 +7,9 @@ import {
   text,
   boolean,
   date,
+  pgEnum,
 } from 'drizzle-orm/pg-core'
+import { ClanRanks } from './schemaTypes.ts'
 
 export type SkillJson = Record<
   number,
@@ -151,9 +153,12 @@ export const activitiesTable = pgTable('activities', {
   deletedAt: timestamp('deleted_at'),
 })
 
+export const pgRankEnum = pgEnum('rankEnum', ClanRanks)
+
 export const membersTable = pgTable('members', {
   id: integer().generatedAlwaysAsIdentity().unique(),
   rsn: varchar({ length: 255 }).notNull().unique(),
+  rank: pgRankEnum().notNull().default(ClanRanks.Bronze),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),

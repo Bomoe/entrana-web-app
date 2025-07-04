@@ -111,3 +111,7 @@ export const getCachedSkillHiscore = unstable_cache(
 export async function getAllSkills() {
   return await db.select().from(skillsTable)
 }
+
+export async function getMembersData() {
+  return await db.select().from(membersTable)
+}
