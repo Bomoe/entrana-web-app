@@ -73,7 +73,7 @@ export async function getMultipleEvents({
       activitiesTable,
       eq(activityEventsTable.activityId, activitiesTable.activityId)
     )
-    .orderBy(desc(activityEventsTable.created_at))
+    .orderBy(desc(activityEventsTable.createdAt))
     .limit(take)
     .offset(skip)
     .where(

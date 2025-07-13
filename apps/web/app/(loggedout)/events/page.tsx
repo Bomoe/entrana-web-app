@@ -1,5 +1,8 @@
 import { getMultipleEvents } from '@/app/actions/events/actions'
 import { EventList } from './_components/EventList'
+import { FormattedEventDetails } from '@/app/actions/events/types'
+
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
   const itemsPerPage = 10

@@ -1,7 +1,6 @@
 'use client'
 
-import { EventType } from '@workspace/db/schema'
-import { ClanRanks, Member } from '@workspace/db/schemaTypes'
+import { ClanRanks, Member, Permissions } from '@workspace/db/schemaTypes'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -14,8 +13,9 @@ import {
 import Image from 'next/image'
 import { useState } from 'react'
 
-export function ManageMembers({ data }: ManageMembersProps) {
+export function ManageMembers({ data, userPermisisons }: ManageMembersProps) {
   const [members, setMembers] = useState<Member[]>(data)
+  const canEditMembers = userPermisisons.has(Permissions.EditMembers)
 
   function rankNameFormatter(name: string) {
     return name
@@ -37,7 +37,10 @@ export function ManageMembers({ data }: ManageMembersProps) {
           <div key={member.id} className="flex flex-row gap-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button className="bg-primary/60">
+                <Button
+                  className="bg-primary/60 disabled:opacity-100"
+                  disabled={!canEditMembers}
+                >
                   <Image
                     unoptimized
                     width={24}
@@ -53,6 +56,7 @@ export function ManageMembers({ data }: ManageMembersProps) {
                 <DropdownMenuSeparator />
                 {Object.values(ClanRanks).map((rank) => (
                   <DropdownMenuItem
+                    key={rank}
                     onClick={() =>
                       setMembers((prev) => {
                         const newMembers = [...prev]
@@ -90,4 +94,5 @@ export function ManageMembers({ data }: ManageMembersProps) {
 
 type ManageMembersProps = {
   data: Member[]
+  userPermisisons: Set<Permissions>
 }

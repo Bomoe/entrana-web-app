@@ -79,7 +79,7 @@ export async function getActivityHiscoreFromDateRange(
     ) {
       latestByRsn.set(record.rsn, {
         activities: record.activities,
-        lastUpdatedAtStr: new Date(record.created_at).toISOString(),
+        lastUpdatedAtStr: new Date(record.createdAt).toISOString(),
       })
     }
   }

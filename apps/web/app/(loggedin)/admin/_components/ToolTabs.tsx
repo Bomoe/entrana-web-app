@@ -12,14 +12,16 @@ import { ManageMembers } from './ManageMembers/ManageMembers'
 import { getAllActivities } from '@/app/actions/activities/actions'
 import { getAllSkills, getMembersData } from '@/app/actions/skills/actions'
 import { SkillsAndActivites } from './ManageEvents/types'
-import { Member } from '@workspace/db/schemaTypes'
+import { Member, Permissions } from '@workspace/db/schemaTypes'
 
 export function ToolTabs({
   defaultTab,
   defaultData,
+  userPermissions,
 }: {
   defaultTab: string
   defaultData: SkillsAndActivites | Member[] | null
+  userPermissions: Set<Permissions>
 }) {
   const [currentTab, setCurrentTab] = useState(defaultTab)
   const [eventsData, setEventsData] = useState<SkillsAndActivites>(
@@ -71,7 +73,7 @@ export function ToolTabs({
           <ManageEvents data={eventsData} />
         </TabsContent>
         <TabsContent value="members">
-          <ManageMembers data={membersData} />
+          <ManageMembers data={membersData} userPermisisons={userPermissions} />
         </TabsContent>
       </Tabs>
     </div>

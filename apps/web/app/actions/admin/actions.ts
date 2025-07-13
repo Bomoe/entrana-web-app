@@ -11,12 +11,8 @@ import {
   EventType,
   skillEventsTable,
 } from '@workspace/db/schema'
-import { NewEvent } from '@workspace/db/schemaTypes'
-
-async function getIsAdmin(userId: string) {
-  // TODO: implement the check for if they are an admin or not
-  return true
-}
+import { NewEvent, Permissions } from '@workspace/db/schemaTypes'
+import { getUserPermissions } from '../auth/actions'
 
 export async function createEvent({
   eventData,
@@ -28,9 +24,9 @@ export async function createEvent({
     redirect('/login')
   }
 
-  const isAdmin = getIsAdmin(session.user.id)
+  const userPermissions = await getUserPermissions({ userId: session.user.id })
 
-  if (!isAdmin) {
+  if (!userPermissions.has(Permissions.CreateEvents)) {
     console.error(
       `An unauthorized user with the id: ${session.user.id} tried to access the admin panel`
     )
@@ -64,7 +60,7 @@ export async function createEvent({
         await db.insert(skillEventsTable).values({
           eventId: createdEvent.id,
           skillId: data.typeId,
-          created_at: new Date(),
+          createdAt: new Date(),
           updatedAt: new Date(),
         })
       }
@@ -80,7 +76,7 @@ export async function createEvent({
         await db.insert(activityEventsTable).values({
           eventId: createdEvent.id,
           activityId: data.typeId,
-          created_at: new Date(),
+          createdAt: new Date(),
           updatedAt: new Date(),
         })
       }

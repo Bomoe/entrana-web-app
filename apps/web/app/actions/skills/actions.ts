@@ -69,7 +69,7 @@ export async function getSkillHiscoreFromDateRange(
     if (record.skills && record.skills[targetSkill]?.xp !== undefined) {
       latestByRsn.set(record.rsn, {
         skills: record.skills,
-        lastUpdatedAtStr: new Date(record.created_at).toISOString(),
+        lastUpdatedAtStr: new Date(record.createdAt).toISOString(),
       })
     }
   }

@@ -340,3 +340,20 @@ export enum ClanRanks {
   // Artisan = 'Artisan',
   // Legacy = 'Legacy',
 }
+
+export enum Permissions {
+  // Members
+  EditMembers = 'edit_members',
+  AddMembers = 'add_members',
+  DeleteMember = 'delete_members',
+  CastVotes = 'cast_votes',
+  InitiateVoting = 'initiate_voting',
+  // Events
+  CreateEvents = 'create_events',
+  ModifyEvents = 'modify_events',
+  DeleteEvents = 'delete_events',
+  // Roles
+  CreateRoles = 'create_roles',
+  ModifyRoles = 'modify_roles',
+  DeleteRoles = 'delete_roles',
+}

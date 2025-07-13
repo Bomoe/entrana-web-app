@@ -9,7 +9,7 @@ import {
   date,
   pgEnum,
 } from 'drizzle-orm/pg-core'
-import { ClanRanks } from './schemaTypes.ts'
+import { ClanRanks, Permissions } from './schemaTypes.ts'
 
 export type SkillJson = Record<
   number,
@@ -34,6 +34,10 @@ export enum EventType {
   ItemRace = 'itemRace',
 }
 
+export const pgRankEnum = pgEnum('rankEnum', ClanRanks)
+
+export const pgPermissionEnum = pgEnum('permissionEnum', Permissions)
+
 export const usersTable = pgTable('users', {
   id: text('id').primaryKey(),
   username: varchar({ length: 255 }).notNull().unique(),
@@ -51,7 +55,7 @@ export const hiscoresTable = pgTable('hiscores', {
   rsn: varchar({ length: 255 }).notNull(),
   skills: jsonb('skills').$type<SkillJson>(),
   activities: jsonb('activities').$type<ActivityJson>(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
 export const session = pgTable('session', {
@@ -114,7 +118,7 @@ export const skillEventsTable = pgTable('skill_events', {
   skillId: integer('skill_id')
     .notNull()
     .references(() => skillsTable.skillId, { onDelete: 'cascade' }),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
@@ -127,7 +131,7 @@ export const activityEventsTable = pgTable('activity_events', {
   activityId: integer('activity_id')
     .notNull()
     .references(() => activitiesTable.activityId, { onDelete: 'cascade' }),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
@@ -136,7 +140,7 @@ export const skillsTable = pgTable('skills', {
   skillId: integer('skill_id').notNull().generatedAlwaysAsIdentity().unique(),
   hiscoreSkillId: integer('hiscore_skill_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
@@ -148,18 +152,58 @@ export const activitiesTable = pgTable('activities', {
     .unique(),
   hiscoreActivityId: integer('hiscore_activity_id').notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
-
-export const pgRankEnum = pgEnum('rankEnum', ClanRanks)
 
 export const membersTable = pgTable('members', {
   id: integer().generatedAlwaysAsIdentity().unique(),
   rsn: varchar({ length: 255 }).notNull().unique(),
   rank: pgRankEnum().notNull().default(ClanRanks.Bronze),
-  created_at: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const permissionsTable = pgTable('permissions', {
+  id: integer().generatedAlwaysAsIdentity().primaryKey(),
+  permission: pgPermissionEnum().notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const rolesTable = pgTable('roles', {
+  id: integer().generatedAlwaysAsIdentity().primaryKey(),
+  name: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const rolePermissionsTable = pgTable('role_permissions', {
+  id: integer().generatedAlwaysAsIdentity().primaryKey(),
+  roleId: integer('role_id')
+    .notNull()
+    .references(() => rolesTable.id, { onDelete: 'cascade' }),
+  permissionId: integer('permission_id')
+    .notNull()
+    .references(() => permissionsTable.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+})
+
+export const userRoles = pgTable('user_roles', {
+  id: integer().generatedAlwaysAsIdentity().primaryKey(),
+  roleId: integer('role_id')
+    .notNull()
+    .references(() => rolesTable.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => usersTable.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   deletedAt: timestamp('deleted_at'),
 })
