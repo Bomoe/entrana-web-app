@@ -38,5 +38,4 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  //...
 })
